@@ -1,8 +1,13 @@
 ext {
     mainClassName = "org.robovm.bindings.gamecenter.Sample"
+    jarPath = "../../hip-hopper/ios/libs"
 }
 
 eclipse.project {
     name = "gamecenter-ios"
     natures 'org.robovm.eclipse.RoboVMNature'
+}
+
+if(project.ext.has('jarPath')) {
+    libsDirName = file(jarPath).absolutePath
 }

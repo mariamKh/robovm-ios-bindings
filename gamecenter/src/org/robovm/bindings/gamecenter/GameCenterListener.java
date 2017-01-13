@@ -14,7 +14,7 @@ public interface GameCenterListener {
 
     public void playerLoginFailed (NSError error);
 
-    public void achievementReportCompleted ();
+    public void achievementReportCompleted (String identifier);
 
     public void achievementReportFailed (NSError error);
 
@@ -26,7 +26,7 @@ public interface GameCenterListener {
 
     public void achievementsResetFailed (NSError error);
 
-    public void scoreReportCompleted ();
+    public void scoreReportCompleted (String identifier);
 
     public void scoreReportFailed (NSError error);
 
