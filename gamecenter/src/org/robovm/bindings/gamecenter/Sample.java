@@ -131,8 +131,8 @@ public class Sample extends UIApplicationDelegateAdapter {
             }
 
             @Override
-            public void achievementReportCompleted () {
-                System.out.println("achievementReportCompleted");
+            public void achievementReportCompleted (String identifier) {
+                System.out.println(identifier+" achievementReportCompleted");
             }
 
             @Override
@@ -161,8 +161,8 @@ public class Sample extends UIApplicationDelegateAdapter {
             }
 
             @Override
-            public void scoreReportCompleted () {
-                System.out.println("scoreReportCompleted");
+            public void scoreReportCompleted (String identifier) {
+                System.out.println(identifier+" scoreReportCompleted");
             }
 
             @Override

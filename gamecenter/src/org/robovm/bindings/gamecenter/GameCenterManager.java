@@ -53,6 +53,9 @@ public class GameCenterManager {
                 @Override
                 public void invoke (UIViewController viewController, NSError error) {
                     // If the device does not have an authenticated player, show the login dialog
+                    // This parameter is null if the authentication process is complete. Otherwise,
+                    // it contains a view controller that your game should display to the player.
+                    System.out.println("vc: "+viewController+" "+GKLocalPlayer.getLocalPlayer().isAuthenticated());
                     if (viewController != null) {
                         keyWindow.getRootViewController().presentViewController(viewController, true, null);
                     }
@@ -91,7 +94,7 @@ public class GameCenterManager {
      * 
      * @param identifier
      * @param percentComplete */
-    public void reportAchievement (String identifier, double percentComplete) {
+    public void reportAchievement (final String identifier, double percentComplete) {
         // If player is not authenticated, do nothing
         if (!GKLocalPlayer.getLocalPlayer().isAuthenticated()) {
             listener.achievementReportFailed(buildUnauthenticatedPlayerError());
@@ -113,7 +116,7 @@ public class GameCenterManager {
                     if (error != null) {
                         listener.achievementReportFailed(error);
                     } else {
-                        listener.achievementReportCompleted();
+                        listener.achievementReportCompleted(identifier);
                     }
                 }
             });
@@ -124,7 +127,7 @@ public class GameCenterManager {
                     if (error != null) {
                         listener.achievementReportFailed(error);
                     } else {
-                        listener.achievementReportCompleted();
+                        listener.achievementReportCompleted(identifier);
                     }
                 }
             });
@@ -178,7 +181,7 @@ public class GameCenterManager {
     /** Report a score to GameCenter
      * @param identifier
      * @param score */
-    public void reportScore (String identifier, long score) {
+    public void reportScore (final String identifier, long score) {
         // If player is not authenticated, do nothing
         if (!GKLocalPlayer.getLocalPlayer().isAuthenticated()) {
             listener.scoreReportFailed(buildUnauthenticatedPlayerError());
@@ -199,7 +202,7 @@ public class GameCenterManager {
                     if (error != null) {
                         listener.scoreReportFailed(error);
                     } else {
-                        listener.scoreReportCompleted();
+                        listener.scoreReportCompleted(identifier);
                     }
                 }
             });
@@ -211,7 +214,7 @@ public class GameCenterManager {
                     if (error != null) {
                         listener.scoreReportFailed(error);
                     } else {
-                        listener.scoreReportCompleted();
+                        listener.scoreReportCompleted(identifier);
                     }
                 }
             });
@@ -277,11 +280,6 @@ public class GameCenterManager {
 
     /** Shows GameCenter standard interface for Achievements */
     public void showAchievementsView () {
-        // If player is not authenticated, do nothing
-        if (!GKLocalPlayer.getLocalPlayer().isAuthenticated()) {
-            return;
-        }
-
         // If iOS version is 6 or more we use the new method
         if (getIosVersion() >= IOS_6) {
             GKGameCenterViewController gameCenterView = new GKGameCenterViewController();
@@ -307,11 +305,6 @@ public class GameCenterManager {
 
     /** Shows GameCenter standard interface for Leaderboards */
     public void showLeaderboardsView () {
-        // If player is not authenticated, do nothing
-        if (!GKLocalPlayer.getLocalPlayer().isAuthenticated()) {
-            return;
-        }
-
         // If iOS version is 6 or more we use the new method
         if (getIosVersion() >= IOS_6) {
             GKGameCenterViewController gameCenterView = new GKGameCenterViewController();
@@ -340,11 +333,6 @@ public class GameCenterManager {
     /** Shows GameCenter standard interface for one Leaderboard
      * @param identifier */
     public void showLeaderboardView (String identifier) {
-        // If player is not authenticated, do nothing
-        if (!GKLocalPlayer.getLocalPlayer().isAuthenticated()) {
-            return;
-        }
-
         // If iOS version is 6 or more we use the new method
         if (getIosVersion() >= IOS_6) {
             GKGameCenterViewController gameCenterView = new GKGameCenterViewController();
@@ -404,7 +392,7 @@ public class GameCenterManager {
      * @return */
     private int getIosVersion () {
         String systemVersion = UIDevice.getCurrentDevice().getSystemVersion();
-        int version = Character.getNumericValue(systemVersion.charAt(0));
+        int version = Integer.parseInt(systemVersion.substring(0, systemVersion.indexOf('.')));
         return version;
     }
 
