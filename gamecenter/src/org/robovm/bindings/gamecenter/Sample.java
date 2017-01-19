@@ -126,6 +126,11 @@ public class Sample extends UIApplicationDelegateAdapter {
             }
 
             @Override
+            public void onGCViewOpened() {
+
+            }
+
+            @Override
             public void playerLoginCompleted () {
                 System.out.println("playerLoginCompleted");
             }

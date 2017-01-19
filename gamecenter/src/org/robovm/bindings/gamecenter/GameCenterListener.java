@@ -10,32 +10,34 @@ import org.robovm.apple.gamekit.GKLeaderboard;
 /** Listener for GameCenter events */
 public interface GameCenterListener {
 
-    public void playerLoginCompleted ();
+    void onGCViewOpened();
 
-    public void playerLoginFailed (NSError error);
+    void playerLoginCompleted ();
 
-    public void achievementReportCompleted (String identifier);
+    void playerLoginFailed (NSError error);
 
-    public void achievementReportFailed (NSError error);
+    void achievementReportCompleted (String identifier);
 
-    public void achievementsLoadCompleted (ArrayList<GKAchievement> achievements);
+    void achievementReportFailed (NSError error);
 
-    public void achievementsLoadFailed (NSError error);
+    void achievementsLoadCompleted (ArrayList<GKAchievement> achievements);
 
-    public void achievementsResetCompleted ();
+    void achievementsLoadFailed (NSError error);
 
-    public void achievementsResetFailed (NSError error);
+    void achievementsResetCompleted ();
 
-    public void scoreReportCompleted (String identifier);
+    void achievementsResetFailed (NSError error);
 
-    public void scoreReportFailed (NSError error);
+    void scoreReportCompleted (String identifier);
 
-    public void leaderboardsLoadCompleted (ArrayList<GKLeaderboard> scores);
+    void scoreReportFailed (NSError error);
 
-    public void leaderboardsLoadFailed (NSError error);
+    void leaderboardsLoadCompleted (ArrayList<GKLeaderboard> scores);
 
-    public void leaderboardViewDismissed ();
+    void leaderboardsLoadFailed (NSError error);
 
-    public void achievementViewDismissed ();
+    void leaderboardViewDismissed ();
+
+    void achievementViewDismissed ();
 
 }

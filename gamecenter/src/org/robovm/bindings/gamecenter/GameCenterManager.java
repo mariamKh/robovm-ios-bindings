@@ -58,6 +58,7 @@ public class GameCenterManager {
                     System.out.println("vc: "+viewController+" "+GKLocalPlayer.getLocalPlayer().isAuthenticated());
                     if (viewController != null) {
                         keyWindow.getRootViewController().presentViewController(viewController, true, null);
+                        listener.onGCViewOpened();
                     }
                     // If the viewController is null and the player is authenticated, the login is completed
                     else if (GKLocalPlayer.getLocalPlayer().isAuthenticated()) {
@@ -291,6 +292,7 @@ public class GameCenterManager {
             });
             gameCenterView.setViewState(GKGameCenterViewControllerState.Achievements);
             keyWindow.getRootViewController().presentViewController(gameCenterView, true, null);
+            listener.onGCViewOpened();
         } else { // If iOS version is 6 or less we use the deprecated method
             GKAchievementViewController gameCenterView = new GKAchievementViewController();
             gameCenterView.setAchievementDelegate(new GKAchievementViewControllerDelegateAdapter() {
@@ -300,6 +302,7 @@ public class GameCenterManager {
                 }
             });
             keyWindow.getRootViewController().presentViewController(gameCenterView, true, null);
+            listener.onGCViewOpened();
         }
     }
 
@@ -317,6 +320,7 @@ public class GameCenterManager {
             gameCenterView.setViewState(GKGameCenterViewControllerState.Leaderboards);
             // gameCenterView.setLeaderboardIdentifier("CgkI4OvQqOcSEAIQBg");
             keyWindow.getRootViewController().presentViewController(gameCenterView, true, null);
+            listener.onGCViewOpened();
         } else { // If iOS version is 6 or less we use the deprecated method
             GKLeaderboardViewController gameCenterView = new GKLeaderboardViewController();
             gameCenterView.setTimeScope(GKLeaderboardTimeScope.AllTime);
@@ -327,6 +331,7 @@ public class GameCenterManager {
                 }
             });
             keyWindow.getRootViewController().presentViewController(gameCenterView, true, null);
+            listener.onGCViewOpened();
         }
     }
 
@@ -349,6 +354,7 @@ public class GameCenterManager {
                 gameCenterView.setLeaderboardCategory(identifier);
 
             keyWindow.getRootViewController().presentViewController(gameCenterView, true, null);
+            listener.onGCViewOpened();
         } else { // If iOS version is 6 or less we use the deprecated method
             GKLeaderboardViewController gameCenterView = new GKLeaderboardViewController();
             gameCenterView.setCategory(identifier);
@@ -361,6 +367,7 @@ public class GameCenterManager {
             });
 
             keyWindow.getRootViewController().presentViewController(gameCenterView, true, null);
+            listener.onGCViewOpened();
         }
     }
 
