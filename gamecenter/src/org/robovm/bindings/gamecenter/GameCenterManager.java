@@ -37,6 +37,8 @@ public class GameCenterManager {
     private final UIWindow keyWindow;
     private final GameCenterListener listener;
 
+    private boolean isViewOpened;
+
     /** Constructor.
      * @param keyWindow KeyWindow can't be accessed from the Delegates sometimes, so we need to save a reference
      * @param listener */
@@ -66,6 +68,7 @@ public class GameCenterManager {
                     }
                     // If the viewController is null and the player is not authenticated the login has failed
                     else {
+                        System.out.println("Error: "+error+".");
                         listener.playerLoginFailed(error);
                     }
                 }
@@ -291,8 +294,7 @@ public class GameCenterManager {
                 }
             });
             gameCenterView.setViewState(GKGameCenterViewControllerState.Achievements);
-            keyWindow.getRootViewController().presentViewController(gameCenterView, true, null);
-            listener.onGCViewOpened();
+            presentViewController(gameCenterView);
         } else { // If iOS version is 6 or less we use the deprecated method
             GKAchievementViewController gameCenterView = new GKAchievementViewController();
             gameCenterView.setAchievementDelegate(new GKAchievementViewControllerDelegateAdapter() {
@@ -301,8 +303,7 @@ public class GameCenterManager {
                     dismissViewControllerAndNotifyListener(viewController, GKGameCenterViewControllerState.Achievements);
                 }
             });
-            keyWindow.getRootViewController().presentViewController(gameCenterView, true, null);
-            listener.onGCViewOpened();
+            presentViewController(gameCenterView);
         }
     }
 
@@ -319,8 +320,7 @@ public class GameCenterManager {
             });
             gameCenterView.setViewState(GKGameCenterViewControllerState.Leaderboards);
             // gameCenterView.setLeaderboardIdentifier("CgkI4OvQqOcSEAIQBg");
-            keyWindow.getRootViewController().presentViewController(gameCenterView, true, null);
-            listener.onGCViewOpened();
+            presentViewController(gameCenterView);
         } else { // If iOS version is 6 or less we use the deprecated method
             GKLeaderboardViewController gameCenterView = new GKLeaderboardViewController();
             gameCenterView.setTimeScope(GKLeaderboardTimeScope.AllTime);
@@ -330,8 +330,7 @@ public class GameCenterManager {
                     dismissViewControllerAndNotifyListener(viewController, GKGameCenterViewControllerState.Leaderboards);
                 }
             });
-            keyWindow.getRootViewController().presentViewController(gameCenterView, true, null);
-            listener.onGCViewOpened();
+            presentViewController(gameCenterView);
         }
     }
 
@@ -353,8 +352,7 @@ public class GameCenterManager {
             else
                 gameCenterView.setLeaderboardCategory(identifier);
 
-            keyWindow.getRootViewController().presentViewController(gameCenterView, true, null);
-            listener.onGCViewOpened();
+            presentViewController(gameCenterView);
         } else { // If iOS version is 6 or less we use the deprecated method
             GKLeaderboardViewController gameCenterView = new GKLeaderboardViewController();
             gameCenterView.setCategory(identifier);
@@ -366,8 +364,7 @@ public class GameCenterManager {
                 }
             });
 
-            keyWindow.getRootViewController().presentViewController(gameCenterView, true, null);
-            listener.onGCViewOpened();
+            presentViewController(gameCenterView);
         }
     }
 
@@ -380,6 +377,8 @@ public class GameCenterManager {
         viewController.dismissViewController(true, new Runnable() {
             @Override
             public void run () {
+                isViewOpened = false;
+
                 switch (viewControllerState) {
                 case Achievements:
                     listener.achievementViewDismissed();
@@ -409,6 +408,16 @@ public class GameCenterManager {
     private NSError buildUnauthenticatedPlayerError () {
         NSErrorUserInfo info = new NSErrorUserInfo().setLocalizedDescription("Local player is unauthenticated");
         return new NSError(GCM_DOMAIN, GCM_ERROR_NOT_AUTHENTICATED, info);
+    }
+
+    private void presentViewController(UIViewController viewController) {
+        keyWindow.getRootViewController().presentViewController(viewController, true, null);
+        listener.onGCViewOpened();
+        isViewOpened = true;
+    }
+
+    public boolean isViewOpened() {
+        return isViewOpened;
     }
 
 }
