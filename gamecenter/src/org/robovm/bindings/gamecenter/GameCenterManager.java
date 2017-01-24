@@ -3,22 +3,8 @@ package org.robovm.bindings.gamecenter;
 
 import java.util.ArrayList;
 
-import org.robovm.apple.foundation.NSArray;
-import org.robovm.apple.foundation.NSError;
-import org.robovm.apple.foundation.NSErrorUserInfo;
-import org.robovm.apple.foundation.NSString;
-import org.robovm.apple.gamekit.GKAchievement;
-import org.robovm.apple.gamekit.GKAchievementViewController;
-import org.robovm.apple.gamekit.GKAchievementViewControllerDelegateAdapter;
-import org.robovm.apple.gamekit.GKGameCenterControllerDelegateAdapter;
-import org.robovm.apple.gamekit.GKGameCenterViewController;
-import org.robovm.apple.gamekit.GKGameCenterViewControllerState;
-import org.robovm.apple.gamekit.GKLeaderboard;
-import org.robovm.apple.gamekit.GKLeaderboardTimeScope;
-import org.robovm.apple.gamekit.GKLeaderboardViewController;
-import org.robovm.apple.gamekit.GKLeaderboardViewControllerDelegateAdapter;
-import org.robovm.apple.gamekit.GKLocalPlayer;
-import org.robovm.apple.gamekit.GKScore;
+import org.robovm.apple.foundation.*;
+import org.robovm.apple.gamekit.*;
 import org.robovm.apple.uikit.UIDevice;
 import org.robovm.apple.uikit.UIViewController;
 import org.robovm.apple.uikit.UIWindow;
@@ -368,6 +354,55 @@ public class GameCenterManager {
         }
     }
 
+    public void saveGameData(byte[] data, String name) {
+        NSData nsData = new NSData(data);
+        GKLocalPlayer.getLocalPlayer().saveGameData(nsData, name, new VoidBlock2<GKSavedGame, NSError>() {
+            @Override
+            public void invoke(GKSavedGame gkSavedGame, NSError nsError) {
+                if (nsError != null) {
+                    listener.saveGameDataFailed(nsError);
+                } else {
+                    GameSavedData savedData = getSavedData(gkSavedGame);
+                    listener.saveGameDataSucceeded(savedData);
+                }
+            }
+        });
+    }
+
+    public void loadGameData() {
+        GKLocalPlayer.getLocalPlayer().fetchSavedGames(new VoidBlock2<NSArray<GKSavedGame>, NSError>() {
+            @Override
+            public void invoke(NSArray<GKSavedGame> gkSavedGames, NSError error) {
+
+                if (error != null) {
+                    listener.loadGameDataFailed(error);
+                } else {
+                    if (gkSavedGames.size() > 0) {
+                        GameSavedData savedData = getSavedData(gkSavedGames.get(0));
+                        listener.loadGameDataSucceeded(savedData);
+                    }
+                }
+
+
+//                NSArray<GKSavedGame> conflictingGames = new NSArray<GKSavedGame>();
+//                for (int i=0; i<gkSavedGames.size(); i++) {
+//                    GKSavedGame iGame = gkSavedGames.get(i);
+//                    conflictingGames.clear();
+//                    for (int j=i+1; j<gkSavedGames.size(); j++) {
+//                        GKSavedGame jGame = gkSavedGames.get(j);
+//                        if (iGame.getName().equals(jGame.getName())) {
+//                            conflictingGames.add(jGame);
+//                        }
+//                    }
+//                    if (conflictingGames.size() > 0) {
+//                        conflictingGames.add(iGame);
+//                        GKLocalPlayer.getLocalPlayer().resolveConflictingSavedGames(conflictingGames);
+//                    }
+//                }
+            }
+        });
+    }
+
     /** Dismiss the {@link UIViewController} and invoke the appropriate callback on the {@link #listener}.
      * 
      * @param viewController the {@link UIViewController} to dismiss
@@ -418,6 +453,15 @@ public class GameCenterManager {
 
     public boolean isViewOpened() {
         return isViewOpened;
+    }
+
+
+    private GameSavedData getSavedData (GKSavedGame gkSavedGame) {
+        GameSavedData savedData = new GameSavedData();
+        savedData.setFileName(gkSavedGame.getName());
+        savedData.setDeviceName(gkSavedGame.getDeviceName());
+        savedData.setModificationDate(gkSavedGame.getModificationDate().toDate());
+        return savedData;
     }
 
 }

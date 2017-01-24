@@ -40,4 +40,11 @@ public interface GameCenterListener {
 
     void achievementViewDismissed ();
 
+    void saveGameDataSucceeded(GameSavedData savedData);
+
+    void saveGameDataFailed(NSError error);
+
+    void loadGameDataSucceeded(GameSavedData savedData);
+
+    void loadGameDataFailed(NSError error);
 }
