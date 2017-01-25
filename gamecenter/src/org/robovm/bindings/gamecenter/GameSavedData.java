@@ -36,4 +36,9 @@ public class GameSavedData {
     public void setFileName(String fileName) {
         this.fileName = fileName;
     }
+
+    @Override
+    public String toString() {
+        return "file: "+fileName+", modified on "+modificationDate.toString()+", on device: "+deviceName;
+    }
 }

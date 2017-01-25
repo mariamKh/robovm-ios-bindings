@@ -194,6 +194,26 @@ public class Sample extends UIApplicationDelegateAdapter {
             public void achievementViewDismissed () {
                 System.out.println("achievementViewDismissed");
             }
+
+            @Override
+            public void saveGameDataSucceeded(GameSavedData savedData) {
+                System.out.println("saveGameDataSucceeded "+savedData.toString());
+            }
+
+            @Override
+            public void saveGameDataFailed(NSError error) {
+                System.out.println("saveGameDataFailed "+error.getLocalizedDescription());
+            }
+
+            @Override
+            public void loadGameDataSucceeded(GameSavedData savedData) {
+                System.out.println("loadGameDataSucceeded "+savedData.toString());
+            }
+
+            @Override
+            public void loadGameDataFailed(NSError error) {
+                System.out.println("loadGameDataFailed "+error.getLocalizedDescription());
+            }
         });
     }
 
