@@ -44,7 +44,7 @@ public interface GameCenterListener {
 
     void saveGameDataFailed(NSError error);
 
-    void loadGameDataSucceeded(GameSavedData savedData);
+    void loadGameDataSucceeded(GameSavedData savedData, byte[] data);
 
     void loadGameDataFailed(NSError error);
 }

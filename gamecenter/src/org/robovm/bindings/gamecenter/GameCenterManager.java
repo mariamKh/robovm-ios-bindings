@@ -376,12 +376,20 @@ public class GameCenterManager {
 
                 if (error != null) {
                     listener.loadGameDataFailed(error);
+                } else if (gkSavedGames.size() > 0) {
+                        GKSavedGame gkSavedGame = gkSavedGames.get(0);
+                        final GameSavedData savedData = getSavedData(gkSavedGame);
+                        gkSavedGame.loadData(new VoidBlock2<NSData, NSError>() {
+                            @Override
+                            public void invoke(NSData nsData, NSError error) {
+                                listener.loadGameDataSucceeded(savedData, nsData.getBytes());
+                            }
+                        });
+
                 } else {
-                    if (gkSavedGames.size() > 0) {
-                        GameSavedData savedData = getSavedData(gkSavedGames.get(0));
-                        listener.loadGameDataSucceeded(savedData);
-                    }
+                    System.out.println("no games saved yet");
                 }
+
 
 
 //                NSArray<GKSavedGame> conflictingGames = new NSArray<GKSavedGame>();

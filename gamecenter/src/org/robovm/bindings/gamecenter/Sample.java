@@ -206,7 +206,7 @@ public class Sample extends UIApplicationDelegateAdapter {
             }
 
             @Override
-            public void loadGameDataSucceeded(GameSavedData savedData) {
+            public void loadGameDataSucceeded(GameSavedData savedData, byte[] data) {
                 System.out.println("loadGameDataSucceeded "+savedData.toString());
             }
 
