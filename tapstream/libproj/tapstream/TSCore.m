@@ -21,7 +21,7 @@
 
 @property(nonatomic, STRONG_OR_RETAIN) id<TSDelegate> del;
 @property(nonatomic, STRONG_OR_RETAIN) id<TSPlatform> platform;
-@property(nonatomic, STRONG_OR_RETAIN) id<TSCoreListener> listener;
+@property(nonatomic, STRONG_OR_RETAIN) id<TSCoreListener> gcListener;
 @property(nonatomic, STRONG_OR_RETAIN) id<TSAppEventSource> appEventSource;
 @property(nonatomic, STRONG_OR_RETAIN) TSConfig *config;
 @property(nonatomic, STRONG_OR_RETAIN) NSString *accountName;
@@ -42,11 +42,11 @@
 
 @implementation TSCore
 
-@synthesize del, platform, listener, appEventSource, config, accountName, secret, encodedAppName, postData, firingEvents, firedEvents, failingEventId, appName, platformName;
+@synthesize del, platform, gcListener, appEventSource, config, accountName, secret, encodedAppName, postData, firingEvents, firedEvents, failingEventId, appName, platformName;
 
 - (id)initWithDelegate:(id<TSDelegate>)delegateVal
 	platform:(id<TSPlatform>)platformVal
-	listener:(id<TSCoreListener>)listenerVal
+	gcListener:(id<TSCoreListener>)listenerVal
 	appEventSource:(id<TSAppEventSource>)appEventSourceVal
 	accountName:(NSString *)accountNameVal
 	developerSecret:(NSString *)developerSecretVal
@@ -56,7 +56,7 @@
 	{
 		self.del = delegateVal;
 		self.platform = platformVal;
-		self.listener = listenerVal;
+		self.gcListener = listenerVal;
 		self.config = configVal;
 		self.appEventSource = appEventSourceVal;
 		self.accountName = [self clean:accountNameVal];
@@ -83,7 +83,7 @@
 {
 	RELEASE(del);
 	RELEASE(platform);
-	RELEASE(listener);
+	RELEASE(gcListener);
 	RELEASE(appEventSource);
 	RELEASE(accountName);
 	RELEASE(secret);
@@ -177,15 +177,15 @@
 			if([firedEvents containsObject:e.name])
 			{
 				[TSLogging logAtLevel:kTSLoggingInfo format:@"Tapstream ignoring event named \"%@\" because it is a one-time-only event that has already been fired", e.name];
-				[listener reportOperation:@"event-ignored-already-fired" arg:e.encodedName];
-				[listener reportOperation:@"job-ended" arg:e.encodedName];
+				[gcListener reportOperation:@"event-ignored-already-fired" arg:e.encodedName];
+				[gcListener reportOperation:@"job-ended" arg:e.encodedName];
 				return;
 			}
 			else if([firingEvents containsObject:e.name])
 			{
 				[TSLogging logAtLevel:kTSLoggingInfo format:@"Tapstream ignoring event named \"%@\" because it is a one-time-only event that is already in progress", e.name];
-				[listener reportOperation:@"event-ignored-already-in-progress" arg:e.encodedName];
-				[listener reportOperation:@"job-ended" arg:e.encodedName];
+				[gcListener reportOperation:@"event-ignored-already-in-progress" arg:e.encodedName];
+				[gcListener reportOperation:@"job-ended" arg:e.encodedName];
 				return;
 			}
 
@@ -248,7 +248,7 @@
 						[firedEvents addObject:e.name];
 
 						[platform saveFiredEvents:firedEvents];
-						[listener reportOperation:@"fired-list-saved" arg:e.encodedName];
+						[gcListener reportOperation:@"fired-list-saved" arg:e.encodedName];
 					}
 
 					// Success of any event resets the delay
@@ -280,11 +280,11 @@
 					[TSLogging logAtLevel:kTSLoggingError format:@"Tapstream Error: Failed to fire event, http code %d.%@", response.status, retryMsg];
 				}
 
-				[listener reportOperation:@"event-failed" arg:e.encodedName];
+				[gcListener reportOperation:@"event-failed" arg:e.encodedName];
 				if(shouldRetry)
 				{
-					[listener reportOperation:@"retry" arg:e.encodedName];
-					[listener reportOperation:@"job-ended" arg:e.encodedName];
+					[gcListener reportOperation:@"retry" arg:e.encodedName];
+					[gcListener reportOperation:@"job-ended" arg:e.encodedName];
 					if([del isRetryAllowed])
 					{
 						[self fireEvent:e];
@@ -295,10 +295,10 @@
 			else
 			{
 				[TSLogging logAtLevel:kTSLoggingInfo format:@"Tapstream fired event named \"%@\"", e.name];
-				[listener reportOperation:@"event-succeeded" arg:e.encodedName];
+				[gcListener reportOperation:@"event-succeeded" arg:e.encodedName];
 			}
 		
-			[listener reportOperation:@"job-ended" arg:e.encodedName];
+			[gcListener reportOperation:@"job-ended" arg:e.encodedName];
 		});
 	}
 }
@@ -313,12 +313,12 @@
 		if(response.status < 200 || response.status >= 300)
 		{
 			[TSLogging logAtLevel:kTSLoggingError format:@"Tapstream Error: Failed to fire hit, http code: %d", response.status];
-			[listener reportOperation:@"hit-failed"];
+			[gcListener reportOperation:@"hit-failed"];
 		}
 		else
 		{
 			[TSLogging logAtLevel:kTSLoggingInfo format:@"Tapstream fired hit to tracker: %@", hit.trackerName];
-			[listener reportOperation:@"hit-succeeded"];
+			[gcListener reportOperation:@"hit-succeeded"];
 		}
 
 		if(completion != nil)
@@ -402,7 +402,7 @@
 		int newDelay = (int)pow( 2, log2( delay ) + 1 );
 		delay = newDelay > 60 ? 60 : newDelay;
 	}
-	[listener reportOperation:@"increased-delay"];
+	[gcListener reportOperation:@"increased-delay"];
 }
 
 - (void)appendPostPairWithPrefix:(NSString *)prefix key:(NSString *)key value:(NSString *)value

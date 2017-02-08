@@ -1,6 +1,7 @@
 ext {
     mainClassName = "org.robovm.bindings.gamecenter.Sample"
-    jarPath = "../../hip-hopper/ios/libs"
+//    jarPath = "../../hip-hopper/ios/libs"
+    jarPath = "../../demolisher/ios/libs"
 }
 
 eclipse.project {

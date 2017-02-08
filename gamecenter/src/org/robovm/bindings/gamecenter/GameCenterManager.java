@@ -8,6 +8,10 @@ import org.robovm.apple.gamekit.*;
 import org.robovm.apple.uikit.UIDevice;
 import org.robovm.apple.uikit.UIViewController;
 import org.robovm.apple.uikit.UIWindow;
+import org.robovm.bindings.gamecenter.listeners.CloudDataListener;
+import org.robovm.bindings.gamecenter.listeners.GameCenterListener;
+import org.robovm.bindings.gamecenter.listeners.GameCenterSignListener;
+import org.robovm.bindings.gamecenter.signature.GKPlayerSignature;
 import org.robovm.objc.block.VoidBlock1;
 import org.robovm.objc.block.VoidBlock2;
 import org.robovm.objc.block.VoidBlock3;
@@ -22,16 +26,32 @@ public class GameCenterManager {
     private static final int IOS_7 = 7;
 
     private final UIWindow keyWindow;
-    private final GameCenterListener listener;
 
-    private boolean isViewOpened;
+    //listeners
+    private GameCenterListener gcListener;
+    private GameCenterSignListener gcSignListener;
+    private CloudDataListener cloudListener;
+    //
+
+    private boolean isGCViewOpened;
 
     /** Constructor.
      * @param keyWindow KeyWindow can't be accessed from the Delegates sometimes, so we need to save a reference
-     * @param listener */
-    public GameCenterManager (UIWindow keyWindow, GameCenterListener listener) {
+     * */
+    public GameCenterManager (UIWindow keyWindow) {
         this.keyWindow = keyWindow;
-        this.listener = listener;
+    }
+
+    public void setGcListener(GameCenterListener gcListener) {
+        this.gcListener = gcListener;
+    }
+
+    public void setGcSignListener(GameCenterSignListener gcSignListener) {
+        this.gcSignListener = gcSignListener;
+    }
+
+    public void setCloudListener(CloudDataListener cloudListener) {
+        this.cloudListener = cloudListener;
     }
 
     /** Do the login logic. If the user has never loged, a dialog will be shown. */
@@ -47,16 +67,16 @@ public class GameCenterManager {
                     System.out.println("vc: "+viewController+" "+GKLocalPlayer.getLocalPlayer().isAuthenticated());
                     if (viewController != null) {
                         keyWindow.getRootViewController().presentViewController(viewController, true, null);
-                        listener.onGCViewOpened();
+                        gcListener.onGCViewOpened();
                     }
                     // If the viewController is null and the player is authenticated, the login is completed
                     else if (GKLocalPlayer.getLocalPlayer().isAuthenticated()) {
-                        listener.playerLoginCompleted();
+                        gcSignListener.playerLoginCompleted();
                     }
                     // If the viewController is null and the player is not authenticated the login has failed
                     else {
                         System.out.println("Error: "+error+".");
-                        listener.playerLoginFailed(error);
+                        gcSignListener.playerLoginFailed(error);
                     }
                 }
             });
@@ -65,9 +85,9 @@ public class GameCenterManager {
                 @Override
                 public void invoke (NSError error) {
                     if (GKLocalPlayer.getLocalPlayer().isAuthenticated()) {
-                        listener.playerLoginCompleted();
+                        gcSignListener.playerLoginCompleted();
                     } else {
-                        listener.playerLoginFailed(error);
+                        gcSignListener.playerLoginFailed(error);
                     }
                 }
             });
@@ -80,15 +100,18 @@ public class GameCenterManager {
             public void invoke(NSURL nsurl, NSData nsData, NSData nsData2, Long aLong, NSError error) {
 
                 if (error != null) {
-                    listener.generateIdentityVerificationSignatureFailed(error);
+                    gcSignListener.generateIdentityVerificationSignatureFailed(error);
                 } else {
                     GKPlayerSignature gkPlayerSignature = new GKPlayerSignature();
                     gkPlayerSignature.setPlayerID(GKLocalPlayer.getLocalPlayer().getPlayerID());
+                    gkPlayerSignature.setPlayerUserName(GKLocalPlayer.getLocalPlayer().getAlias());
+                    gkPlayerSignature.setPlayerDisplayName(GKLocalPlayer.getLocalPlayer().getDisplayName());
+                    gkPlayerSignature.setBundleID(NSBundle.getMainBundle().getBundleIdentifier());
                     gkPlayerSignature.setPublicKeyUrl(nsurl.getAbsoluteString());
                     gkPlayerSignature.setSignature(nsData.getBytes());
                     gkPlayerSignature.setSalt(nsData2.getBytes());
                     gkPlayerSignature.setTimestamp(aLong);
-                    listener.generateIdentityVerificationSignatureSucceded(gkPlayerSignature);
+                    gcSignListener.generateIdentityVerificationSignatureSucceded(gkPlayerSignature);
                 }
 
             }
@@ -109,7 +132,7 @@ public class GameCenterManager {
     public void reportAchievement (final String identifier, double percentComplete) {
         // If player is not authenticated, do nothing
         if (!GKLocalPlayer.getLocalPlayer().isAuthenticated()) {
-            listener.achievementReportFailed(buildUnauthenticatedPlayerError());
+            gcListener.achievementReportFailed(buildUnauthenticatedPlayerError());
             return;
         }
 
@@ -126,9 +149,9 @@ public class GameCenterManager {
                 @Override
                 public void invoke (NSError error) {
                     if (error != null) {
-                        listener.achievementReportFailed(error);
+                        gcListener.achievementReportFailed(error);
                     } else {
-                        listener.achievementReportCompleted(identifier);
+                        gcListener.achievementReportCompleted(identifier);
                     }
                 }
             });
@@ -137,9 +160,9 @@ public class GameCenterManager {
                 @Override
                 public void invoke (NSError error) {
                     if (error != null) {
-                        listener.achievementReportFailed(error);
+                        gcListener.achievementReportFailed(error);
                     } else {
-                        listener.achievementReportCompleted(identifier);
+                        gcListener.achievementReportCompleted(identifier);
                     }
                 }
             });
@@ -150,7 +173,7 @@ public class GameCenterManager {
     public void loadAchievements () {
         // If player is not authenticated, do nothing
         if (!GKLocalPlayer.getLocalPlayer().isAuthenticated()) {
-            listener.achievementsLoadFailed(buildUnauthenticatedPlayerError());
+            gcListener.achievementsLoadFailed(buildUnauthenticatedPlayerError());
             return;
         }
 
@@ -158,13 +181,13 @@ public class GameCenterManager {
             @Override
             public void invoke (NSArray<GKAchievement> array, NSError error) {
                 if (error != null) {
-                    listener.achievementsLoadFailed(error);
+                    gcListener.achievementsLoadFailed(error);
                 } else {
                     ArrayList<GKAchievement> achievements = new ArrayList<GKAchievement>();
                     for (GKAchievement achievement : array) {
                         achievements.add(achievement);
                     }
-                    listener.achievementsLoadCompleted(achievements);
+                    gcListener.achievementsLoadCompleted(achievements);
                 }
             }
         });
@@ -174,7 +197,7 @@ public class GameCenterManager {
     public void resetAchievements () {
         // If player is not authenticated, do nothing
         if (!GKLocalPlayer.getLocalPlayer().isAuthenticated()) {
-            listener.achievementsResetFailed(buildUnauthenticatedPlayerError());
+            gcListener.achievementsResetFailed(buildUnauthenticatedPlayerError());
             return;
         }
 
@@ -182,9 +205,9 @@ public class GameCenterManager {
             @Override
             public void invoke (NSError error) {
                 if (error != null) {
-                    listener.achievementsResetFailed(error);
+                    gcListener.achievementsResetFailed(error);
                 } else {
-                    listener.achievementsResetCompleted();
+                    gcListener.achievementsResetCompleted();
                 }
             }
         });
@@ -196,7 +219,7 @@ public class GameCenterManager {
     public void reportScore (final String identifier, long score) {
         // If player is not authenticated, do nothing
         if (!GKLocalPlayer.getLocalPlayer().isAuthenticated()) {
-            listener.scoreReportFailed(buildUnauthenticatedPlayerError());
+            gcListener.scoreReportFailed(buildUnauthenticatedPlayerError());
             return;
         }
 
@@ -212,9 +235,9 @@ public class GameCenterManager {
                 @Override
                 public void invoke (NSError error) {
                     if (error != null) {
-                        listener.scoreReportFailed(error);
+                        gcListener.scoreReportFailed(error);
                     } else {
-                        listener.scoreReportCompleted(identifier);
+                        gcListener.scoreReportCompleted(identifier);
                     }
                 }
             });
@@ -224,9 +247,9 @@ public class GameCenterManager {
                 @Override
                 public void invoke (NSError error) {
                     if (error != null) {
-                        listener.scoreReportFailed(error);
+                        gcListener.scoreReportFailed(error);
                     } else {
-                        listener.scoreReportCompleted(identifier);
+                        gcListener.scoreReportCompleted(identifier);
                     }
                 }
             });
@@ -238,7 +261,7 @@ public class GameCenterManager {
     public void loadLeaderboards () {
         // If player is not authenticated, do nothing
         if (!GKLocalPlayer.getLocalPlayer().isAuthenticated()) {
-            listener.leaderboardsLoadFailed(buildUnauthenticatedPlayerError());
+            gcListener.leaderboardsLoadFailed(buildUnauthenticatedPlayerError());
             return;
         }
 
@@ -248,13 +271,13 @@ public class GameCenterManager {
                 @Override
                 public void invoke (NSArray<GKLeaderboard> array, NSError error) {
                     if (error != null) {
-                        listener.leaderboardsLoadFailed(error);
+                        gcListener.leaderboardsLoadFailed(error);
                     } else {
                         ArrayList<GKLeaderboard> leaderboards = new ArrayList<GKLeaderboard>();
                         for (GKLeaderboard leaderboard : array) {
                             leaderboards.add(leaderboard);
                         }
-                        listener.leaderboardsLoadCompleted(leaderboards);
+                        gcListener.leaderboardsLoadCompleted(leaderboards);
                     }
                 }
             });
@@ -263,7 +286,7 @@ public class GameCenterManager {
                 @Override
                 public void invoke (NSArray<NSString> array, NSArray<NSString> array2, NSError error) {
                     if (error != null) {
-                        listener.leaderboardsLoadFailed(error);
+                        gcListener.leaderboardsLoadFailed(error);
                     } else {
                         ArrayList<GKLeaderboard> leaderboards = new ArrayList<GKLeaderboard>();
                         for (NSString category : array) {
@@ -272,7 +295,7 @@ public class GameCenterManager {
 
                             leaderboards.add(leaderboard);
                         }
-                        listener.leaderboardsLoadCompleted(leaderboards);
+                        gcListener.leaderboardsLoadCompleted(leaderboards);
                     }
                 }
             });
@@ -382,10 +405,10 @@ public class GameCenterManager {
             @Override
             public void invoke(GKSavedGame gkSavedGame, NSError nsError) {
                 if (nsError != null) {
-                    listener.saveGameDataFailed(nsError);
+                    cloudListener.saveGameDataFailed(nsError);
                 } else {
                     GameSavedData savedData = getSavedData(gkSavedGame);
-                    listener.saveGameDataSucceeded(savedData);
+                    cloudListener.saveGameDataSucceeded(savedData);
                 }
             }
         });
@@ -397,14 +420,14 @@ public class GameCenterManager {
             public void invoke(NSArray<GKSavedGame> gkSavedGames, NSError error) {
 
                 if (error != null) {
-                    listener.loadGameDataFailed(error);
+                    cloudListener.loadGameDataFailed(error);
                 } else if (gkSavedGames.size() > 0) {
                         GKSavedGame gkSavedGame = gkSavedGames.get(0);
                         final GameSavedData savedData = getSavedData(gkSavedGame);
                         gkSavedGame.loadData(new VoidBlock2<NSData, NSError>() {
                             @Override
                             public void invoke(NSData nsData, NSError error) {
-                                listener.loadGameDataSucceeded(savedData, nsData.getBytes());
+                                cloudListener.loadGameDataSucceeded(savedData, nsData.getBytes());
                             }
                         });
 
@@ -433,7 +456,7 @@ public class GameCenterManager {
         });
     }
 
-    /** Dismiss the {@link UIViewController} and invoke the appropriate callback on the {@link #listener}.
+    /** Dismiss the {@link UIViewController} and invoke the appropriate callback on the {@link #gcListener}.
      * 
      * @param viewController the {@link UIViewController} to dismiss
      * @param viewControllerState the type of the View Controller being dismissed */
@@ -442,14 +465,14 @@ public class GameCenterManager {
         viewController.dismissViewController(true, new Runnable() {
             @Override
             public void run () {
-                isViewOpened = false;
+                isGCViewOpened = false;
 
                 switch (viewControllerState) {
                 case Achievements:
-                    listener.achievementViewDismissed();
+                    gcListener.achievementViewDismissed();
                     break;
                 case Leaderboards:
-                    listener.leaderboardViewDismissed();
+                    gcListener.leaderboardViewDismissed();
                     break;
                 default:
                     break;
@@ -477,12 +500,12 @@ public class GameCenterManager {
 
     private void presentViewController(UIViewController viewController) {
         keyWindow.getRootViewController().presentViewController(viewController, true, null);
-        listener.onGCViewOpened();
-        isViewOpened = true;
+        gcListener.onGCViewOpened();
+        isGCViewOpened = true;
     }
 
-    public boolean isViewOpened() {
-        return isViewOpened;
+    public boolean isGCViewOpened() {
+        return isGCViewOpened;
     }
 
 

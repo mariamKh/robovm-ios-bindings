@@ -20,6 +20,8 @@ import org.robovm.apple.uikit.UIScreen;
 import org.robovm.apple.uikit.UIView;
 import org.robovm.apple.uikit.UIViewController;
 import org.robovm.apple.uikit.UIWindow;
+import org.robovm.bindings.gamecenter.listeners.GameCenterListener;
+import org.robovm.bindings.gamecenter.signature.GKPlayerSignature;
 
 /** Sample usage of GameKit framework */
 public class Sample extends UIApplicationDelegateAdapter {
@@ -119,112 +121,7 @@ public class Sample extends UIApplicationDelegateAdapter {
 
         window.setRootViewController(viewController);
 
-        gcManager = new GameCenterManager(UIApplication.getSharedApplication().getKeyWindow(), new GameCenterListener() {
-            @Override
-            public void playerLoginFailed (NSError error) {
-                System.out.println("playerLoginFailed. error: " + error);
-            }
-
-            @Override
-            public void onGCViewOpened() {
-
-            }
-
-            @Override
-            public void playerLoginCompleted () {
-                System.out.println("playerLoginCompleted");
-            }
-
-            @Override
-            public void achievementReportCompleted (String identifier) {
-                System.out.println(identifier+" achievementReportCompleted");
-            }
-
-            @Override
-            public void achievementReportFailed (NSError error) {
-                System.out.println("achievementReportFailed. error: " + error);
-            }
-
-            @Override
-            public void achievementsLoadCompleted (ArrayList<GKAchievement> achievements) {
-                System.out.println("achievementsLoadCompleted: " + achievements.size());
-            }
-
-            @Override
-            public void achievementsLoadFailed (NSError error) {
-                System.out.println("achievementsLoadFailed. error: " + error);
-            }
-
-            @Override
-            public void achievementsResetCompleted () {
-                System.out.println("achievementsResetCompleted");
-            }
-
-            @Override
-            public void achievementsResetFailed (NSError error) {
-                System.out.println("achievementsResetFailed. error: " + error);
-            }
-
-            @Override
-            public void scoreReportCompleted (String identifier) {
-                System.out.println(identifier+" scoreReportCompleted");
-            }
-
-            @Override
-            public void scoreReportFailed (NSError error) {
-                System.out.println("scoreReportFailed. error: " + error);
-            }
-
-            @Override
-            public void leaderboardsLoadCompleted (ArrayList<GKLeaderboard> scores) {
-                System.out.println("scoresLoadCompleted: " + scores.size());
-            }
-
-            @Override
-            public void leaderboardsLoadFailed (NSError error) {
-                System.out.println("scoresLoadFailed. error: " + error);
-            }
-
-            @Override
-            public void leaderboardViewDismissed () {
-                System.out.println("leaderboardViewDismissed");
-            }
-
-            @Override
-            public void achievementViewDismissed () {
-                System.out.println("achievementViewDismissed");
-            }
-
-            @Override
-            public void saveGameDataSucceeded(GameSavedData savedData) {
-                System.out.println("saveGameDataSucceeded "+savedData.toString());
-            }
-
-            @Override
-            public void saveGameDataFailed(NSError error) {
-                System.out.println("saveGameDataFailed "+error.getLocalizedDescription());
-            }
-
-            @Override
-            public void loadGameDataSucceeded(GameSavedData savedData, byte[] data) {
-                System.out.println("loadGameDataSucceeded "+savedData.toString());
-            }
-
-            @Override
-            public void loadGameDataFailed(NSError error) {
-                System.out.println("loadGameDataFailed "+error.getLocalizedDescription());
-            }
-
-            @Override
-            public void generateIdentityVerificationSignatureSucceded(GKPlayerSignature gkPlayerSignature) {
-
-            }
-
-            @Override
-            public void generateIdentityVerificationSignatureFailed(NSError error) {
-
-            }
-        });
+        gcManager = new GameCenterManager(UIApplication.getSharedApplication().getKeyWindow());
     }
 
     public static void main (String[] argv) {

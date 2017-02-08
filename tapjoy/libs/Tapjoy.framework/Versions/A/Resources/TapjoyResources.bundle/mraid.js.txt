@@ -275,7 +275,7 @@
   /**
    *
    */
-  mraidview.addEventListener = function(event, listener) {
+  mraidview.addEventListener = function(event, gcListener) {
     var handlers = listeners[event];
     if (handlers == null) {
       // no handlers defined yet, set it up
@@ -283,16 +283,16 @@
       handlers = listeners[event];
     }
 
-    // see if the listener is already present
+    // see if the gcListener is already present
     for (var handler in handlers) {
-      if (listener == handler) {
-        // listener already present, nothing to do
+      if (gcListener == handler) {
+        // gcListener already present, nothing to do
         return;
       }
     }
 
     // not present yet, go ahead and add it
-    handlers.push(listener);
+    handlers.push(gcListener);
   };
 
 
@@ -307,10 +307,10 @@
   /**
    *
    */
-  mraidview.removeEventListener = function(event, listener) {
+  mraidview.removeEventListener = function(event, gcListener) {
     var handlers = listeners[event];
     if (handlers != null) {
-      handlers.remove(listener);
+      handlers.remove(gcListener);
     }
   };
 
@@ -1234,14 +1234,14 @@ mraidview.storePicture = function(URL) {
     broadcastEvent(EVENTS.READY);
   };
 
-  mraid.addEventListener = function(event, listener) {
-    if (!event || !listener) {
-      broadcastEvent(EVENTS.ERROR, 'Both event and listener are required.', 'addEventListener');
+  mraid.addEventListener = function(event, gcListener) {
+    if (!event || !gcListener) {
+      broadcastEvent(EVENTS.ERROR, 'Both event and gcListener are required.', 'addEventListener');
     } else if (!contains(event, EVENTS)) {
       broadcastEvent(EVENTS.ERROR, 'Unknown event: ' + event, 'addEventListener');
     } else {
       if (!listeners[event]) listeners[event] = new EventListeners(event);
-      listeners[event].add(listener);
+      listeners[event].add(gcListener);
     }
   };
 
@@ -1358,11 +1358,11 @@ mraidview.storePicture = function(URL) {
   };
 
 
-  mraid.removeEventListener = function(event, listener) {
+  mraid.removeEventListener = function(event, gcListener) {
     if (!event) {
       broadcastEvent(EVENTS.ERROR, 'Must specify an event.', 'removeEventListener');
     } else {
-      if (listener && (!listeners[event] || !listeners[event].remove(listener))) {
+      if (gcListener && (!listeners[event] || !listeners[event].remove(gcListener))) {
         broadcastEvent(EVENTS.ERROR, 'Listener not currently registered for event', 'removeEventListener');
         return;
       } else if (listeners[event]) {
@@ -1661,8 +1661,8 @@ mraidview.storePicture = function(URL) {
     mraid.signalReady();
   };
 
-  ormma.addEventListener = function(event, listener) {
-    mraid.addEventListener(event, listener);
+  ormma.addEventListener = function(event, gcListener) {
+    mraid.addEventListener(event, gcListener);
   };
 
   ormma.close = function() {
@@ -1711,8 +1711,8 @@ mraidview.storePicture = function(URL) {
     mraid.openMap(POI, fullscreen);
   };
 
-  ormma.removeEventListener = function(event, listener) {
-    mraid.removeEventListener(event, listener);
+  ormma.removeEventListener = function(event, gcListener) {
+    mraid.removeEventListener(event, gcListener);
   };
 
   ormma.resize = function(width, height) {

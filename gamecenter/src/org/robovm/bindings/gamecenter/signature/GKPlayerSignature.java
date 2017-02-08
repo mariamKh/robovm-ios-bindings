@@ -1,6 +1,4 @@
-package org.robovm.bindings.gamecenter;
-
-import org.robovm.apple.foundation.NSError;
+package org.robovm.bindings.gamecenter.signature;
 
 /**
  * Created by mariam on 2/8/17.
@@ -9,6 +7,9 @@ public class GKPlayerSignature {
 
     private String playerID;
     private String bundleID;
+
+    private String playerUserName;
+    private String playerDisplayName;
 
     private String publicKeyUrl;
     private byte[] signature;
@@ -63,6 +64,22 @@ public class GKPlayerSignature {
         this.timestamp = timestamp;
     }
 
+    public String getPlayerUserName() {
+        return playerUserName;
+    }
+
+    public void setPlayerUserName(String playerUserName) {
+        this.playerUserName = playerUserName;
+    }
+
+    public String getPlayerDisplayName() {
+        return playerDisplayName;
+    }
+
+    public void setPlayerDisplayName(String playerDisplayName) {
+        this.playerDisplayName = playerDisplayName;
+    }
+
     @Override
     public String toString() {
         return "player ID: " + playerID
@@ -70,6 +87,8 @@ public class GKPlayerSignature {
                 + ", publicKeyUrl: " + publicKeyUrl
                 + ", signature: " + signature
                 + ", salt: "+salt
-                + ", timestamp: "+timestamp;
+                + ", timestamp: "+timestamp
+                + ", alias: "+ playerUserName
+                + ", display name: "+playerDisplayName;
     }
 }

@@ -64,12 +64,12 @@ static TSTapstream *instance = nil;
 	{
 		del = [[TSDelegateImpl alloc] initWithTapstream:self];
 		platform = [[TSPlatformImpl alloc] init];
-		listener = [[TSCoreListenerImpl alloc] init];
+		gcListener = [[TSCoreListenerImpl alloc] init];
 		appEventSource = [[TSAppEventSourceImpl alloc] init];
 
 		self.core = AUTORELEASE([[TSCore alloc] initWithDelegate:del
 			platform:platform
-			listener:listener
+			gcListener:gcListener
 			appEventSource:appEventSource
 			accountName:accountName
 			developerSecret:developerSecret
@@ -83,7 +83,7 @@ static TSTapstream *instance = nil;
 {
 	RELEASE(del);
 	RELEASE(platform);
-	RELEASE(listener);
+	RELEASE(gcListener);
 	RELEASE(appEventSource);
 	RELEASE(core);
 	SUPER_DEALLOC;

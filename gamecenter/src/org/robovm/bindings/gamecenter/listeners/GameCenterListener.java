@@ -1,20 +1,18 @@
 
-package org.robovm.bindings.gamecenter;
+package org.robovm.bindings.gamecenter.listeners;
 
 import java.util.ArrayList;
 
 import org.robovm.apple.foundation.NSError;
 import org.robovm.apple.gamekit.GKAchievement;
 import org.robovm.apple.gamekit.GKLeaderboard;
+import org.robovm.bindings.gamecenter.GameSavedData;
+import org.robovm.bindings.gamecenter.signature.GKPlayerSignature;
 
 /** Listener for GameCenter events */
 public interface GameCenterListener {
 
     void onGCViewOpened();
-
-    void playerLoginCompleted ();
-
-    void playerLoginFailed (NSError error);
 
     void achievementReportCompleted (String identifier);
 
@@ -39,16 +37,4 @@ public interface GameCenterListener {
     void leaderboardViewDismissed ();
 
     void achievementViewDismissed ();
-
-    void saveGameDataSucceeded(GameSavedData savedData);
-
-    void saveGameDataFailed(NSError error);
-
-    void loadGameDataSucceeded(GameSavedData savedData, byte[] data);
-
-    void loadGameDataFailed(NSError error);
-
-    void generateIdentityVerificationSignatureSucceded(GKPlayerSignature gkPlayerSignature);
-
-    void generateIdentityVerificationSignatureFailed (NSError error);
 }
