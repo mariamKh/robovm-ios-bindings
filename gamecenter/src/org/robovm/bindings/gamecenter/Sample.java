@@ -214,6 +214,16 @@ public class Sample extends UIApplicationDelegateAdapter {
             public void loadGameDataFailed(NSError error) {
                 System.out.println("loadGameDataFailed "+error.getLocalizedDescription());
             }
+
+            @Override
+            public void generateIdentityVerificationSignatureSucceded(GKPlayerSignature gkPlayerSignature) {
+
+            }
+
+            @Override
+            public void generateIdentityVerificationSignatureFailed(NSError error) {
+
+            }
         });
     }
 

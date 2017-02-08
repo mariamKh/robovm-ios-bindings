@@ -11,6 +11,7 @@ import org.robovm.apple.uikit.UIWindow;
 import org.robovm.objc.block.VoidBlock1;
 import org.robovm.objc.block.VoidBlock2;
 import org.robovm.objc.block.VoidBlock3;
+import org.robovm.objc.block.VoidBlock5;
 
 @SuppressWarnings("deprecation")
 public class GameCenterManager {
@@ -71,6 +72,27 @@ public class GameCenterManager {
                 }
             });
         }
+    }
+
+    public void generateIdentityVerificationSignature() {
+        GKLocalPlayer.getLocalPlayer().generateIdentityVerificationSignature(new VoidBlock5<NSURL, NSData, NSData, Long, NSError>() {
+            @Override
+            public void invoke(NSURL nsurl, NSData nsData, NSData nsData2, Long aLong, NSError error) {
+
+                if (error != null) {
+                    listener.generateIdentityVerificationSignatureFailed(error);
+                } else {
+                    GKPlayerSignature gkPlayerSignature = new GKPlayerSignature();
+                    gkPlayerSignature.setPlayerID(GKLocalPlayer.getLocalPlayer().getPlayerID());
+                    gkPlayerSignature.setPublicKeyUrl(nsurl.getAbsoluteString());
+                    gkPlayerSignature.setSignature(nsData.getBytes());
+                    gkPlayerSignature.setSalt(nsData2.getBytes());
+                    gkPlayerSignature.setTimestamp(aLong);
+                    listener.generateIdentityVerificationSignatureSucceded(gkPlayerSignature);
+                }
+
+            }
+        });
     }
 
     /** Report an achievement completed (100 as percentComplete)

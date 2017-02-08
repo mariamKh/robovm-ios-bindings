@@ -47,4 +47,8 @@ public interface GameCenterListener {
     void loadGameDataSucceeded(GameSavedData savedData, byte[] data);
 
     void loadGameDataFailed(NSError error);
+
+    void generateIdentityVerificationSignatureSucceded(GKPlayerSignature gkPlayerSignature);
+
+    void generateIdentityVerificationSignatureFailed (NSError error);
 }
