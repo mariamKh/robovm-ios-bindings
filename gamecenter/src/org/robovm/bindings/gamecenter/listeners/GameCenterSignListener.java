@@ -8,6 +8,8 @@ import org.robovm.bindings.gamecenter.signature.GKPlayerSignature;
  */
 public interface GameCenterSignListener {
 
+    void onGCViewOpened();
+
     void playerLoginCompleted ();
 
     void playerLoginFailed (NSError error);

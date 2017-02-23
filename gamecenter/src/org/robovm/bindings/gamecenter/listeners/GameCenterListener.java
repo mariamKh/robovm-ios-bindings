@@ -12,8 +12,6 @@ import org.robovm.bindings.gamecenter.signature.GKPlayerSignature;
 /** Listener for GameCenter events */
 public interface GameCenterListener {
 
-    void onGCViewOpened();
-
     void achievementReportCompleted (String identifier);
 
     void achievementReportFailed (NSError error);

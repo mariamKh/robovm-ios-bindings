@@ -67,7 +67,7 @@ public class GameCenterManager {
                     System.out.println("vc: "+viewController+" "+GKLocalPlayer.getLocalPlayer().isAuthenticated());
                     if (viewController != null) {
                         keyWindow.getRootViewController().presentViewController(viewController, true, null);
-                        gcListener.onGCViewOpened();
+                        gcSignListener.onGCViewOpened();
                     }
                     // If the viewController is null and the player is authenticated, the login is completed
                     else if (GKLocalPlayer.getLocalPlayer().isAuthenticated()) {
@@ -500,7 +500,7 @@ public class GameCenterManager {
 
     private void presentViewController(UIViewController viewController) {
         keyWindow.getRootViewController().presentViewController(viewController, true, null);
-        gcListener.onGCViewOpened();
+        gcSignListener.onGCViewOpened();
         isGCViewOpened = true;
     }
 
